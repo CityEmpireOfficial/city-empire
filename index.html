@@ -366,6 +366,7 @@ saveGame();
   
 let money = 10000;
 let buildings = [];
+let selectedPlotIndex = null;
 let populationChange = 0;
   let currentWeather = "آفتابی";
 let gameMinutes = 480;
@@ -686,49 +687,88 @@ try {
 saveGame();
   }
   
-function openBuildMenu() {
- let menu = document.getElementById("buildMenu");
- menu.innerHTML = "";
 
- options.forEach((item,index) => {
-  let unlocked = getCityLevel() >= item.requiredLevel;
+function openBuildMenu(plotIndex = null) {
 
-  menu.innerHTML += `
-   <div style="padding:12px">
-    ${item.icon} ${item.name}<br>
-    قیمت: ${item.price} سکه<br>
-    سطح موردنیاز: ${item.requiredLevel}<br>
-    ${
-     unlocked
-     ? `<button onclick="buyBuilding(${index})">خرید</button>`
-     : `<button disabled>🔒 قفل است</button>`
-    }
-   </div>`;
- });
+    selectedPlotIndex = plotIndex;
+
+    let menu = document.getElementById("buildMenu");
+
+    menu.innerHTML = "<h3>🏗️ انتخاب ساختمان</h3>";
+
+    options.forEach((item, index) => {
+
+        let unlocked = getCityLevel() >= item.requiredLevel;
+
+        menu.innerHTML += `
+            <div style="padding:12px">
+                ${item.icon} ${item.name}<br>
+                قیمت: ${item.price} سکه<br>
+                سطح موردنیاز: ${item.requiredLevel}<br>
+
+                ${
+                    unlocked
+                    ? `<button onclick="buyBuilding(${index})">خرید</button>`
+                    : `<button disabled>🔒 قفل است</button>`
+                }
+            </div>
+        `;
+    });
+
+    menu.scrollIntoView({behavior: "smooth"});
 }
+
+
 
 function buyBuilding(index) {
 
     let item = options[index];
-if(getCityLevel() < item.requiredLevel) {
- alert("سطح شهر برای خرید این ساختمان کافی نیست!");
- return;
-  }
+
+    if (getCityLevel() < item.requiredLevel) {
+        alert("سطح شهر برای خرید این ساختمان کافی نیست!");
+        return;
+    }
+
     if (money < item.price) {
         alert("پول کافی نداری!");
         return;
     }
 
+    let plot = selectedPlotIndex;
+
+    if (plot === null) {
+        plot = buildings.findIndex((b, i) => i < 12 && !b);
+
+        if (plot === -1) {
+            plot = buildings.length < 12 ? buildings.length : -1;
+        }
+    }
+
+    if (plot < 0 || plot >= 12) {
+        alert("ظرفیت شهر تکمیل شده!");
+        return;
+    }
+
+    if (buildings[plot]) {
+        alert("این زمین قبلاً ساخته شده!");
+        return;
+    }
+
     money -= item.price;
 
-    buildings.push({
-    ...item,
-    level: 1
-});
+    buildings[plot] = {
+        ...item,
+        level: 1
+    };
+
+    selectedPlotIndex = null;
+
+    document.getElementById("buildMenu").innerHTML = "";
 
     updateGame();
-saveGame();
+    saveGame();
 }
+
 
 
 function updateGame() {
@@ -759,11 +799,12 @@ function updateGame() {
 
         } else {
 
-            area.innerHTML += `
-                <div class="empty-plot">
-                    ＋
-                </div>
-            `;
+          area.innerHTML += `
+    <div class="empty-plot" onclick="openBuildMenu(${i})">
+        ＋
+        <small>ساخت</small>
+    </div>
+`;
 
         }
     }
