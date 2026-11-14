@@ -512,6 +512,7 @@ function advanceTime() {
     if(gameMinutes >= 1440) {
         gameMinutes = 0;
         gameDay++;
+saveGame();
     }
 
     updateGame();
