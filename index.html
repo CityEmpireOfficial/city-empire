@@ -560,11 +560,12 @@ function applyGameData(data) {
     currentWeather = data.currentWeather || "آفتابی";
     money = Number(data.money ?? 10000);
 
-    // حفظ جای دقیق ساختمان‌ها روی نقشه
-    buildings = new Array(12);
+    buildings = new Array(
+        Array.isArray(data.buildings) ? data.buildings.length : 0
+    );
 
     (data.buildings || []).forEach((item, index) => {
-        if (item && index < 12) {
+        if (item) {
             buildings[index] = {
                 ...item,
                 level: Number(item.level) || 1
@@ -733,6 +734,8 @@ function buyBuilding(index) {
 
     let item = options[index];
 
+    if (!item) return;
+
     if (getCityLevel() < item.requiredLevel) {
         alert("سطح شهر برای خرید این ساختمان کافی نیست!");
         return;
@@ -746,15 +749,15 @@ function buyBuilding(index) {
     let plot = selectedPlotIndex;
 
     if (plot === null) {
-        plot = buildings.findIndex((b, i) => i < 12 && !b);
+        plot = buildings.findIndex(b => !b);
 
         if (plot === -1) {
-            plot = buildings.length < 12 ? buildings.length : -1;
+            plot = buildings.length;
         }
     }
 
-    if (plot < 0 || plot >= 12) {
-        alert("ظرفیت شهر تکمیل شده!");
+    if (plot < 0) {
+        alert("زمین انتخاب‌شده معتبر نیست!");
         return;
     }
 
@@ -787,7 +790,10 @@ function updateGame() {
 
     area.innerHTML = "";
 
-    let totalPlots = 12;
+    let totalPlots = Math.max(
+    12,
+    Math.ceil(buildings.length / 12) * 12
+);
 
     for (let i = 0; i < totalPlots; i++) {
 
