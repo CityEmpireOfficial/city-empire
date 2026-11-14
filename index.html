@@ -516,46 +516,127 @@ function advanceTime() {
 
 setInterval(advanceTime, 5000);
   
-function saveGame() {
+const CITY_API_URL = "https://ekxbooldzichzjxooxyb.supabase.co/functions/v1/quick-responder";
 
-    const data = {
-        money: money,
-        buildings: buildings,
-        populationChange: populationChange,
-        claimedMissions: claimedMissions,
-        gameMinutes: gameMinutes,
-        currentWeather: currentWeather,
-      gameDay: gameDay,
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_UCaH3etQqVskEWIYsSyGFg_k69qH3hM";
+
+let cloudReady = false;
+let cloudSaveTimer = null;
+
+function getGameData() {
+    return {
+        money,
+        buildings,
+        populationChange,
+        claimedMissions,
+        gameMinutes,
+        currentWeather,
+        gameDay
     };
+}
+
+function applyGameData(data) {
+    gameDay = Number(data.gameDay) || 1;
+    populationChange = Number(data.populationChange) || 0;
+    claimedMissions = data.claimedMissions || [];
+    gameMinutes = Number(data.gameMinutes ?? 480);
+    currentWeather = data.currentWeather || "آفتابی";
+    money = Number(data.money ?? 10000);
+
+    buildings = (data.buildings || []).map(item => ({
+        ...item,
+        level: Number(item.level) || 1
+    }));
+}
+
+async function cityCloudRequest(action, cityData) {
+    const initData = window.Telegram?.WebApp?.initData;
+
+    if (!initData) {
+        throw new Error("Telegram data unavailable");
+    }
+
+    const response = await fetch(CITY_API_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_PUBLISHABLE_KEY
+        },
+        body: JSON.stringify({
+            initData,
+            action,
+            ...(action === "save" ? { cityData } : {})
+        })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.error || "Cloud request failed");
+    }
+
+    return result;
+}
+
+function saveGame() {
+    const data = getGameData();
 
     localStorage.setItem(
         "cityEmpireSave",
         JSON.stringify(data)
     );
-  }
 
-  function loadGame() {
- const saved = localStorage.getItem("cityEmpireSave");
+    if (!cloudReady) return;
 
- if(saved) {
-  const data = JSON.parse(saved);
+    clearTimeout(cloudSaveTimer);
 
-   gameDay = Number(data.gameDay) || 1;
-   populationChange = Number(data.populationChange) || 0;
-   claimedMissions = data.claimedMissions || [];
-   gameMinutes = Number(data.gameMinutes ?? 480);
-   currentWeather = data.currentWeather || "آفتابی";
-   
-  money = Number(data.money) || 0;
+    cloudSaveTimer = setTimeout(() => {
+        cityCloudRequest("save", data)
+            .catch(error => console.error("Cloud save error:", error));
+    }, 1500);
+}
 
-  buildings = (data.buildings || []).map(item => ({
-   ...item,
-   level: Number(item.level) || 1
-  }));
- }
+async function loadGame() {
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+    }
 
- updateGame();
-  }
+    const saved = localStorage.getItem("cityEmpireSave");
+    let localData = null;
+
+    if (saved) {
+        try {
+            localData = JSON.parse(saved);
+            applyGameData(localData);
+        } catch (error) {
+            console.error("Local save error:", error);
+        }
+    }
+
+    updateGame();
+
+    try {
+        const result = await cityCloudRequest("load");
+
+        if (result.city) {
+            applyGameData(result.city);
+
+            localStorage.setItem(
+                "cityEmpireSave",
+                JSON.stringify(result.city)
+            );
+        } else if (localData) {
+            await cityCloudRequest("save", localData);
+        }
+
+        cloudReady = true;
+        updateGame();
+
+        console.log("Cloud connected!");
+    } catch (error) {
+        console.error("Cloud load error:", error);
+    }
+}
   
   function changeWeather() {
  let random = Math.floor(Math.random() * weathers.length);
