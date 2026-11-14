@@ -241,7 +241,20 @@ body:not(.night) #header *,
 body:not(.night) .topbar * {
     color: #222222 !important;
 }
-  
+
+.empty-plot {
+    min-height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(20, 40, 30, 0.5);
+    border: 2px dashed #7a9b85;
+    border-radius: 8px;
+    color: #b5d3bd;
+    font-size: 25px;
+}
+
+
 </style>
 </head>
 
@@ -744,24 +757,41 @@ document.getElementById("energyCost").innerText =
 document.getElementById("weather").innerText =
  weather.icon + " " + weather.name;
   
+
   let area = document.getElementById("buildings");
 
-    area.innerHTML = "";
+area.innerHTML = "";
 
-    buildings.forEach((item, index) => {
+let totalPlots = 12;
 
-    area.innerHTML += `
-        <div class="building">
-            ${item.icon}
-            <p>${item.name}</p>
-            <small>سطح ${item.level}</small>
-            <button onclick="upgradeBuilding(${index})">
-                ارتقا
-            </button>
-        </div>
-    `;
+for (let i = 0; i < totalPlots; i++) {
 
-});
+    if (buildings[i]) {
+
+        let item = buildings[i];
+
+        area.innerHTML += `
+            <div class="building">
+                ${item.icon}
+                <p>${item.name}</p>
+                <small>سطح ${item.level}</small>
+                <button onclick="upgradeBuilding(${i})">
+                    ارتقا
+                </button>
+            </div>
+        `;
+
+    } else {
+
+        area.innerHTML += `
+            <div class="empty-plot">
+                ＋
+            </div>
+        `;
+
+    }
+
+}
 
 let season = getSeason();
 
