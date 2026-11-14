@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CITY EMPIRE</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #101827;
+    color: white;
+    font-family: Tahoma, sans-serif;
+}
+
+.header {
+    padding: 20px;
+    background: #1b293d;
+    text-align: center;
+}
+
+.header h2 {
+    margin: 0;
+    color: #38d9a9;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 5px;
+    background: #24354c;
+}
+
+.stat {
+    text-align: center;
+    font-size: 13px;
+}
+
+.stat b {
+    display: block;
+    color: #38d9a9;
+    margin-top: 8px;
+}
+
+.city {
+    margin: 15px;
+    padding: 20px;
+    min-height: 300px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #244e68, #172d46);
+    text-align: center;
+}
+
+.city h3 {
+    color: #38d9a9;
+}
+
+.buildings {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.building {
+    background: #30465e;
+    border-radius: 12px;
+    padding: 18px 5px;
+    font-size: 28px;
+}
+
+.building p {
+    font-size: 13px;
+}
+
+button {
+    background: #38d9a9;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.menu {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 5px;
+    background: #1b293d;
+}
+
+.menu button {
+    font-size: 12px;
+}
+
+  /* CITY MAP */
+
+.buildings {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+    background-color: #294b43;
+
+    background-image:
+    linear-gradient(90deg,
+    transparent 46%,
+    #64717b 46%,
+    #64717b 54%,
+    transparent 54%),
+
+    linear-gradient(0deg,
+    transparent 46%,
+    #64717b 46%,
+    #64717b 54%,
+    transparent 54%);
+}
+
+.building {
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #365c50;
+    border: 1px solid #638477;
+    border-radius: 8px;
+    font-size: 30px;
+}
+
+.building p {
+    font-size: 11px;
+    margin: 5px;
+}
+
+body.night {
+ background: #080f20;
+ color: #dce6ff;
+}
+
+body.night .building {
+ background: #263653;
+ box-shadow: 0 0 12px rgba(255, 220, 120, 0.25);
+}
+
+body.night .city {
+ background: #101d32;
+}
+
+body:not(.night) {
+    background: #f0f2f5 !important;
+    color: #222 !important;
+}
+
+body:not(.night) .city {
+    background: #dce8d5 !important;
+}
+
+body:not(.night) .building {
+    background: #ffffff !important;
+}
+
+.mission {
+    padding: 12px;
+    margin: 8px;
+    background: #ffffff;
+    color: #222222;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+}
+
+.mission p {
+    color: inherit;
+}
+
+.mission button {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+}
+
+/* قالب روز بازی */
+body:not(.night) {
+    background: #f0f2f5 !important;
+    color: #222 !important;
+}
+
+/* کارت های آمار */
+body:not(.night) .stat {
+    background: #ffffff !important;
+    color: #222 !important;
+}
+
+/* منوی ساختمان ها */
+body:not(.night) #buildMenu {
+    background: #ffffff !important;
+    color: #222 !important;
+}
+
+/* محوطه شهر */
+body:not(.night) #buildings {
+    background: #dce8d5 !important;
+    color: #222 !important;
+}
+
+/* ساختمان ها */
+body:not(.night) .building {
+    background: #ffffff !important;
+    color: #222 !important;
+}
+
+/* نوشته های داخل قسمت ها */
+body:not(.night) .stat *,
+body:not(.night) #buildMenu *,
+body:not(.night) #buildings * {
+    color: #222 !important;
+}
+
+/* هدر در حالت روز */
+body:not(.night) header,
+body:not(.night) .header,
+body:not(.night) #header,
+body:not(.night) .topbar {
+    background: #ffffff !important;
+    color: #222222 !important;
+    border-color: #dddddd !important;
+}
+
+body:not(.night) header *,
+body:not(.night) .header *,
+body:not(.night) #header *,
+body:not(.night) .topbar * {
+    color: #222222 !important;
+}
+  
+</style>
+</head>
+
+  <body>
+<header class="header">
+    <div class="header-brand">
+        <div>
+            <h2>CITY EMPIRE</h2>
+            <small>مدیریت شهر من</small>
+        </div>
+        <div class="city-level">
+            ⭐ سطح <b id="level">1</b>
+        </div>
+    </div>
+</header><section class="stats"><div class="stat">
+    <span>💰 پول</span>
+    <b id="money">10000</b>
+</div>
+
+<div class="stat">
+    <span>👥 جمعیت</span>
+    <b id="population">100</b>
+</div>
+
+<div class="stat">
+    <span>📈 درآمد</span>
+    <b id="income">0</b>
+</div>
+
+<div class="stat">
+    <span>⚡ برق</span>
+    <b id="energy">0</b>
+</div>
+
+</section><main class="city"><div class="city-heading">
+    <div>
+        <h3>🏙️ شهر من</h3>
+        <small>منطقه مرکزی | سطح ۱</small>
+    </div>
+
+    <div class="city-weather">
+        <b id="weather">☀️ آفتابی</b>
+        <small id="gameClock">08:00</small>
+    </div>
+</div>
+
+<div class="city-info">
+
+    <div>😊 رضایت <b id="satisfaction">100</b>%</div>
+
+    <div>👷 اشتغال <b id="jobs">0</b></div>
+
+    <div>📉 بیکاری <b id="unemployment">0</b>%</div>
+
+    <div>💰 مالیات <b id="tax">0</b></div>
+
+    <div>🌱 فصل <b id="season">🌸 بهار</b></div>
+
+    <div>💡 هزینه برق <b id="energyCost">0</b></div>
+
+</div>
+
+<div class="map-heading">
+    <span>نقشه شهری</span>
+    <small>ساختمان‌ها: <b id="buildingCount">0</b></small>
+</div>
+
+<div class="buildings" id="buildings"></div>
+
+<button class="build-main" onclick="openBuildMenu()">
+    ＋ ساخت ساختمان جدید
+</button>
+
+<div id="buildMenu"></div>
+
+<section class="mission-box">
+    <h3>🎯 مأموریت‌های شهر</h3>
+    <div id="missions"></div>
+</section>
+
+</main><nav class="menu">
+    <button onclick="alert('بخش شهر')">🏙️<small>شهر</small></button>
+    <button onclick="openBuildMenu()">🏗️<small>ساخت‌وساز</small></button>
+    <button onclick="alert('بخش اقتصاد')">💰<small>اقتصاد</small></button>
+    <button onclick="alert('بخش مأموریت‌ها')">🎯<small>مأموریت‌ها</small></button>
+    <button onclick="alert('بخش فروشگاه')">🛒<small>فروشگاه</small></button>
+</nav>
+
+<script>
+
+function upgradeBuilding(index) {
+ let item = buildings[index];
+
+ if(!item.level) item.level = 1;
+
+ let price = item.level * 100;
+
+ if(money < price) {
+  alert("پول کافی نداری!");
+  return;
+ }
+
+ money -= price;
+ item.level++;
+
+ updateGame();
+  }
+  
+let money = 10000;
+let buildings = [];
+let populationChange = 0;
+  let currentWeather = "آفتابی";
+let gameMinutes = 480;
+  let gameDay = 1;
+
+
+  const seasons = [
+    {name:"بهار", icon:"🌸", satisfaction:5, income:1, energy:1},
+    {name:"تابستان", icon:"☀️", satisfaction:0, income:0.95, energy:1.2},
+    {name:"پاییز", icon:"🍂", satisfaction:2, income:1.05, energy:1.1},
+    {name:"زمستان", icon:"❄️", satisfaction:-5, income:0.9, energy:1.5}
+];
+
+const energyRates = {
+    "خانه مسکونی": 2,
+    "برج تجاری": 8,
+    "کارخانه": 20,
+    "هتل": 15,
+    "پارک": 1,
+    "بیمارستان": 12,
+    "مدرسه": 8
+};
+
+function getEnergyConsumption() {
+    let total = buildings.reduce((sum, item) => {
+        return sum +
+        (energyRates[item.name] || 0) *
+        (Number(item.level) || 1);
+    }, 0);
+
+    return Math.floor(total * getSeason().energy);
+}
+
+function getEnergyCost() {
+    return getEnergyConsumption() * 2;
+}
+  
+function getSeason() {
+    let index = Math.floor((gameDay - 1) / 30) % 4;
+    return seasons[index];
+}
+  
+const weathers = [
+ {name:"آفتابی",icon:"☀️",satisfaction:5,income:1},
+ {name:"بارانی",icon:"🌧️",satisfaction:-3,income:1},
+ {name:"برفی",icon:"❄️",satisfaction:-5,income:0.9},
+ {name:"طوفانی",icon:"⛈️",satisfaction:-10,income:0.7}
+];
+  
+const options = [
+ {name:"خانه مسکونی",icon:"🏠",price:1000,requiredLevel:1},
+ {name:"برج تجاری",icon:"🏢",price:3000,requiredLevel:1},
+ {name:"کارخانه",icon:"🏭",price:5000,requiredLevel:2},
+ {name:"هتل",icon:"🏨",price:7000,requiredLevel:3},
+ {name:"پارک",icon:"🌳",price:4000,requiredLevel:2},
+ {name:"بیمارستان",icon:"🏥",price:12000,requiredLevel:3},
+ {name:"مدرسه",icon:"🏫",price:8000,requiredLevel:2}
+];
+const missions = [
+ {
+  id: 1,
+  name: "ساخت ۳ خانه مسکونی",
+  reward: 2000,
+  check: () => buildings.filter(b => b.name === "خانه مسکونی").length >= 3
+ },
+ {
+  id: 2,
+  name: "ساخت ۲ برج تجاری",
+  reward: 3000,
+  check: () => buildings.filter(b => b.name === "برج تجاری").length >= 2
+ },
+ {
+  id: 3,
+  name: "جمعیت ۲۰۰ نفر",
+  reward: 2500,
+  check: () => getPopulation() >= 200
+ },
+ {
+  id: 4,
+  name: "ایجاد ۵۰ فرصت شغلی",
+  reward: 3000,
+  check: () => getJobs() >= 50
+ },
+ {
+  id: 5,
+  name: "ساخت اولین کارخانه",
+  reward: 5000,
+  check: () => buildings.some(b => b.name === "کارخانه")
+ }
+];
+
+let claimedMissions = [];
+
+function renderMissions() {
+ let area = document.getElementById("missions");
+ area.innerHTML = "";
+
+ missions.forEach(m => {
+  let claimed = claimedMissions.includes(m.id);
+  let completed = m.check();
+
+  area.innerHTML += `
+   <div class="mission">
+    <p>${m.name}</p>
+    <p>🎁 جایزه: ${m.reward} سکه</p>
+
+    ${
+     claimed
+     ? "✅ جایزه دریافت شده"
+     : completed
+     ? `<button onclick="claimMission(${m.id})">دریافت جایزه</button>`
+     : "⏳ در حال انجام"
+    }
+   </div>
+  `;
+ });
+  }
+
+function claimMission(id) {
+ let mission = missions.find(m => m.id === id);
+
+ if(!mission || claimedMissions.includes(id)) return;
+
+ if(!mission.check()) {
+  alert("هنوز مأموریت کامل نشده!");
+  return;
+ }
+
+ money += mission.reward;
+ claimedMissions.push(id);
+
+ updateGame();
+ saveGame();
+
+ alert("جایزه مأموریت دریافت شد! 🎉");
+}
+
+function updateClock() {
+ let hours = Math.floor(gameMinutes / 60);
+ let minutes = gameMinutes % 60;
+
+ let time = String(hours).padStart(2,"0") + ":" +
+            String(minutes).padStart(2,"0");
+
+ document.getElementById("gameClock").innerText = time;
+
+ if(hours >= 6 && hours < 18) {
+  document.body.classList.remove("night");
+ } else {
+  document.body.classList.add("night");
+ }
+}
+
+function advanceTime() {
+    gameMinutes++;
+
+    if(gameMinutes >= 1440) {
+        gameMinutes = 0;
+        gameDay++;
+    }
+
+    updateGame();
+}
+
+setInterval(advanceTime, 5000);
+  
+function saveGame() {
+
+    const data = {
+        money: money,
+        buildings: buildings,
+        populationChange: populationChange,
+        claimedMissions: claimedMissions,
+        gameMinutes: gameMinutes,
+        currentWeather: currentWeather,
+      gameDay: gameDay,
+    };
+
+    localStorage.setItem(
+        "cityEmpireSave",
+        JSON.stringify(data)
+    );
+  }
+
+  function loadGame() {
+ const saved = localStorage.getItem("cityEmpireSave");
+
+ if(saved) {
+  const data = JSON.parse(saved);
+
+   gameDay = Number(data.gameDay) || 1;
+   populationChange = Number(data.populationChange) || 0;
+   claimedMissions = data.claimedMissions || [];
+   gameMinutes = Number(data.gameMinutes ?? 480);
+   currentWeather = data.currentWeather || "آفتابی";
+   
+  money = Number(data.money) || 0;
+
+  buildings = (data.buildings || []).map(item => ({
+   ...item,
+   level: Number(item.level) || 1
+  }));
+ }
+
+ updateGame();
+  }
+  
+  function changeWeather() {
+ let random = Math.floor(Math.random() * weathers.length);
+ currentWeather = weathers[random].name;
+ updateGame();
+  }
+  
+function openBuildMenu() {
+ let menu = document.getElementById("buildMenu");
+ menu.innerHTML = "";
+
+ options.forEach((item,index) => {
+  let unlocked = getCityLevel() >= item.requiredLevel;
+
+  menu.innerHTML += `
+   <div style="padding:12px">
+    ${item.icon} ${item.name}<br>
+    قیمت: ${item.price} سکه<br>
+    سطح موردنیاز: ${item.requiredLevel}<br>
+    ${
+     unlocked
+     ? `<button onclick="buyBuilding(${index})">خرید</button>`
+     : `<button disabled>🔒 قفل است</button>`
+    }
+   </div>`;
+ });
+}
+
+function buyBuilding(index) {
+
+    let item = options[index];
+if(getCityLevel() < item.requiredLevel) {
+ alert("سطح شهر برای خرید این ساختمان کافی نیست!");
+ return;
+  }
+    if (money < item.price) {
+        alert("پول کافی نداری!");
+        return;
+    }
+
+    money -= item.price;
+
+    buildings.push({
+    ...item,
+    level: 1
+});
+
+    updateGame();
+
+}
+
+function updateGame() {
+
+    document.getElementById("money").innerText = money;
+
+    document.getElementById("buildingCount").innerText =
+    buildings.length;
+
+  document.getElementById("income").innerText = getIncome();
+document.getElementById("population").innerText = getPopulation();
+document.getElementById("jobs").innerText = getJobs();
+  document.getElementById("unemployment").innerText = getUnemployment();
+document.getElementById("satisfaction").innerText = getSatisfaction();
+document.getElementById("tax").innerText = getTaxIncome();
+document.getElementById("level").innerText = getCityLevel();
+  document.getElementById("energy").innerText =
+    getEnergyConsumption();
+
+document.getElementById("energyCost").innerText =
+    getEnergyCost();
+  
+  renderMissions();
+
+  let weather = weathers.find(w => w.name === currentWeather);
+
+document.getElementById("weather").innerText =
+ weather.icon + " " + weather.name;
+  
+  let area = document.getElementById("buildings");
+
+    area.innerHTML = "";
+
+    buildings.forEach((item, index) => {
+
+    area.innerHTML += `
+        <div class="building">
+            ${item.icon}
+            <p>${item.name}</p>
+            <small>سطح ${item.level}</small>
+            <button onclick="upgradeBuilding(${index})">
+                ارتقا
+            </button>
+        </div>
+    `;
+
+});
+
+let season = getSeason();
+
+document.getElementById("season").innerText =
+    season.icon + " " + season.name;
+  
+  updateClock();
+  
+saveGame();}
+
+const incomeRates = {
+ "خانه مسکونی":50,
+ "برج تجاری":120,
+ "کارخانه":200,
+ "هتل":250,
+ "پارک":0,
+ "بیمارستان":0,
+ "مدرسه":0
+};
+
+const populationRates = {
+ "خانه مسکونی":20,
+ "برج تجاری":10,
+ "کارخانه":5,
+ "هتل":8,
+ "پارک":0,
+ "بیمارستان":0,
+ "مدرسه":0
+};
+
+const jobRates = {
+ "خانه مسکونی":0,
+ "برج تجاری":15,
+ "کارخانه":30,
+ "هتل":12,
+ "پارک":5,
+ "بیمارستان":20,
+ "مدرسه":15
+};
+
+const serviceRates = {
+ "پارک":5,
+ "بیمارستان":8,
+ "مدرسه":6
+};
+
+function getServiceBonus() {
+ return buildings.reduce((total,item) => {
+  return total + (
+   (serviceRates[item.name] || 0) *
+   (Number(item.level) || 1)
+  );
+ },0);
+  }
+
+function getPopulation() {
+    return 100 + populationChange + buildings.reduce((total, item) => {
+        return total + (
+            (populationRates[item.name] || 0) *
+            (Number(item.level) || 1)
+        );
+    }, 0);
+}
+  
+  function getJobs() {
+ return buildings.reduce((total,item) => {
+  return total + ((jobRates[item.name] || 0) * (Number(item.level) || 1));
+ },0);
+  }
+
+function getTaxIncome() {
+ return Math.floor(
+  getPopulation() * (getSatisfaction() / 100) * 0.2
+ );
+}
+  
+function getUnemployment() {
+ let population = getPopulation();
+ let jobs = getJobs();
+
+ return Math.min(100, Math.round(
+  Math.max(0, (population - jobs) / population * 100)
+ ));
+}
+
+  function getSatisfaction() {
+    let unemployment = getUnemployment();
+    let weather = weathers.find(w => w.name === currentWeather);
+    let season = getSeason();
+
+    let satisfaction =
+        100 - Math.round(unemployment * 0.5)
+        + getServiceBonus()
+        + weather.satisfaction
+        + season.satisfaction;
+
+    return Math.min(100, Math.max(30, satisfaction));
+  }
+  
+  
+function getIncome() {
+ return buildings.reduce((total,item) => {
+  return total + ((incomeRates[item.name] || 0) * (Number(item.level) || 1));
+ },0);
+}
+
+function collectIncome() {
+    let buildingIncome = getIncome();
+    let taxIncome = getTaxIncome();
+
+    let weather = weathers.find(w => w.name === currentWeather);
+    let season = getSeason();
+
+    let totalIncome = Math.floor(
+        (buildingIncome + taxIncome)
+        * weather.income
+        * season.income
+    );
+
+    money += totalIncome;
+
+    document.getElementById("income").innerText = totalIncome;
+
+    saveGame();
+    updateGame();
+}
+
+function getCityLevel() {
+ let population = getPopulation();
+
+ if(population >= 1000) return 5;
+ if(population >= 700) return 4;
+ if(population >= 450) return 3;
+ if(population >= 250) return 2;
+
+ return 1;
+}
+  
+setInterval(collectIncome, 10000);
+  loadGame();
+
+setInterval(() => {
+ let satisfaction = getSatisfaction();
+
+ if(satisfaction >= 80) {
+  populationChange++;
+ }
+
+ else if(satisfaction < 50 && populationChange > -50) {
+  populationChange--;
+ }
+
+ updateGame();
+}, 30000);
+
+setInterval(changeWeather, 60000);
+  
+  
+</script>
+  
+  </body>
+  </html>
