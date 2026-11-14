@@ -551,6 +551,7 @@ function getGameData() {
     };
 }
 
+
 function applyGameData(data) {
     gameDay = Number(data.gameDay) || 1;
     populationChange = Number(data.populationChange) || 0;
@@ -559,11 +560,19 @@ function applyGameData(data) {
     currentWeather = data.currentWeather || "آفتابی";
     money = Number(data.money ?? 10000);
 
-    buildings = (data.buildings || []).map(item => ({
-        ...item,
-        level: Number(item.level) || 1
-    }));
+    // حفظ جای دقیق ساختمان‌ها روی نقشه
+    buildings = new Array(12);
+
+    (data.buildings || []).forEach((item, index) => {
+        if (item && index < 12) {
+            buildings[index] = {
+                ...item,
+                level: Number(item.level) || 1
+            };
+        }
+    });
 }
+
 
 async function cityCloudRequest(action, cityData) {
     const initData = window.Telegram?.WebApp?.initData;
@@ -813,7 +822,7 @@ function updateGame() {
     document.getElementById("money").innerText = money;
 
     document.getElementById("buildingCount").innerText =
-        buildings.length;
+    buildings.filter(Boolean).length;
 
     document.getElementById("income").innerText = getIncome();
 
