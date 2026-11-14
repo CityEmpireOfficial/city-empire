@@ -580,64 +580,90 @@ async function cityCloudRequest(action, cityData) {
     return result;
 }
 
-function saveGame() {
-    const data = getGameData();
+function getPlayerSaveKey() {
+const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
+if (!userId) {
+    throw new Error("Telegram user not found");
+}
+
+return "cityEmpireSave_" + userId;
+
+}
+
+function saveGame() {
+const data = getGameData();
+
+try {
     localStorage.setItem(
-        "cityEmpireSave",
+        getPlayerSaveKey(),
         JSON.stringify(data)
     );
+} catch (error) {
+    console.error("Local save error:", error);
+}
 
-    if (!cloudReady) return;
+if (!cloudReady) return;
 
-    clearTimeout(cloudSaveTimer);
+clearTimeout(cloudSaveTimer);
 
-    cloudSaveTimer = setTimeout(() => {
-        cityCloudRequest("save", data)
-            .catch(error => console.error("Cloud save error:", error));
-    }, 1500);
+cloudSaveTimer = setTimeout(() => {
+    cityCloudRequest("save", data)
+        .catch(error => console.error("Cloud save error:", error));
+}, 1500);
+
 }
 
 async function loadGame() {
-    if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.ready();
-    }
+cloudReady = false;
 
-    const saved = localStorage.getItem("cityEmpireSave");
-    let localData = null;
+if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.ready();
+}
+
+let localData = null;
+
+try {
+    const saved = localStorage.getItem(getPlayerSaveKey());
 
     if (saved) {
-        try {
-            localData = JSON.parse(saved);
-            applyGameData(localData);
-        } catch (error) {
-            console.error("Local save error:", error);
-        }
+        localData = JSON.parse(saved);
     }
+} catch (error) {
+    console.error("Local load error:", error);
+}
+
+try {
+    const result = await cityCloudRequest("load");
+
+    if (result.city) {
+        applyGameData(result.city);
+    } else if (localData) {
+        applyGameData(localData);
+        await cityCloudRequest("save", localData);
+    }
+
+    cloudReady = true;
+
+    localStorage.setItem(
+        getPlayerSaveKey(),
+        JSON.stringify(getGameData())
+    );
 
     updateGame();
 
-    try {
-        const result = await cityCloudRequest("load");
+    console.log("Cloud connected!");
 
-        if (result.city) {
-            applyGameData(result.city);
+} catch (error) {
+    console.error("Cloud load error:", error);
 
-            localStorage.setItem(
-                "cityEmpireSave",
-                JSON.stringify(result.city)
-            );
-        } else if (localData) {
-            await cityCloudRequest("save", localData);
-        }
-
-        cloudReady = true;
-        updateGame();
-
-        console.log("Cloud connected!");
-    } catch (error) {
-        console.error("Cloud load error:", error);
+    if (localData) {
+        applyGameData(localData);
     }
+
+    updateGame();
+}
+
 }
   
   function changeWeather() {
