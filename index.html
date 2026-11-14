@@ -730,76 +730,89 @@ if(getCityLevel() < item.requiredLevel) {
 saveGame();
 }
 
+
 function updateGame() {
 
+    // ساخت نقشه ۱۲ خانه‌ای شهر
+    let area = document.getElementById("buildings");
+
+    area.innerHTML = "";
+
+    let totalPlots = 12;
+
+    for (let i = 0; i < totalPlots; i++) {
+
+        if (buildings[i]) {
+
+            let item = buildings[i];
+
+            area.innerHTML += `
+                <div class="building">
+                    ${item.icon}
+                    <p>${item.name}</p>
+                    <small>سطح ${item.level}</small>
+                    <button onclick="upgradeBuilding(${i})">
+                        ارتقا
+                    </button>
+                </div>
+            `;
+
+        } else {
+
+            area.innerHTML += `
+                <div class="empty-plot">
+                    ＋
+                </div>
+            `;
+
+        }
+    }
+
+    // اطلاعات مالی و جمعیت
     document.getElementById("money").innerText = money;
 
     document.getElementById("buildingCount").innerText =
-    buildings.length;
+        buildings.length;
 
-  document.getElementById("income").innerText = getIncome();
-document.getElementById("population").innerText = getPopulation();
-document.getElementById("jobs").innerText = getJobs();
-  document.getElementById("unemployment").innerText = getUnemployment();
-document.getElementById("satisfaction").innerText = getSatisfaction();
-document.getElementById("tax").innerText = getTaxIncome();
-document.getElementById("level").innerText = getCityLevel();
-  document.getElementById("energy").innerText =
-    getEnergyConsumption();
+    document.getElementById("income").innerText = getIncome();
 
-document.getElementById("energyCost").innerText =
-    getEnergyCost();
-  
-  renderMissions();
+    document.getElementById("population").innerText = getPopulation();
 
-  let weather = weathers.find(w => w.name === currentWeather);
+    document.getElementById("jobs").innerText = getJobs();
 
-document.getElementById("weather").innerText =
- weather.icon + " " + weather.name;
-  
+    document.getElementById("unemployment").innerText =
+        getUnemployment();
 
-  let area = document.getElementById("buildings");
+    document.getElementById("satisfaction").innerText =
+        getSatisfaction();
 
-area.innerHTML = "";
+    document.getElementById("tax").innerText = getTaxIncome();
 
-let totalPlots = 12;
+    document.getElementById("level").innerText = getCityLevel();
 
-for (let i = 0; i < totalPlots; i++) {
+    document.getElementById("energy").innerText =
+        getEnergyConsumption();
 
-    if (buildings[i]) {
+    document.getElementById("energyCost").innerText =
+        getEnergyCost();
 
-        let item = buildings[i];
+    // وضعیت آب‌وهوا
+    let weather = weathers.find(w => w.name === currentWeather);
 
-        area.innerHTML += `
-            <div class="building">
-                ${item.icon}
-                <p>${item.name}</p>
-                <small>سطح ${item.level}</small>
-                <button onclick="upgradeBuilding(${i})">
-                    ارتقا
-                </button>
-            </div>
-        `;
+    document.getElementById("weather").innerText =
+        weather.icon + " " + weather.name;
 
-    } else {
+    // فصل شهر
+    let season = getSeason();
 
-        area.innerHTML += `
-            <div class="empty-plot">
-                ＋
-            </div>
-        `;
+    document.getElementById("season").innerText =
+        season.icon + " " + season.name;
 
-    }
+    // مأموریت‌ها
+    renderMissions();
 
-}
-
-let season = getSeason();
-
-document.getElementById("season").innerText =
-    season.icon + " " + season.name;
-  
-  updateClock();
-  
+    // ساعت و حالت شب و روز
+    updateClock();
 }
 
 const incomeRates = {
