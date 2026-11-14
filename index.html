@@ -900,26 +900,31 @@ function getCityLevel() {
  return 1;
 }
   
-setInterval(collectIncome, 10000);
-  loadGame();
+loadGame().then(() => {
 
-setInterval(() => {
- let satisfaction = getSatisfaction();
+    setInterval(advanceTime, 5000);
 
- if(satisfaction >= 80) {
-  populationChange++;
- }
+    setInterval(collectIncome, 10000);
 
- else if(satisfaction < 50 && populationChange > -50) {
-  populationChange--;
- }
+    setInterval(() => {
+        let satisfaction = getSatisfaction();
 
- updateGame();
-saveGame();
+        if(satisfaction >= 80) {
+            populationChange++;
+        }
 
-}, 30000);
+        else if(satisfaction < 50 && populationChange > -50) {
+            populationChange--;
+        }
 
-setInterval(changeWeather, 60000);
+        saveGame();
+        updateGame();
+
+    }, 30000);
+
+    setInterval(changeWeather, 60000);
+
+});
   
   
 </script>
